@@ -1,18 +1,15 @@
-class MyClass:
-    """A simple example class"""
-    i = 12345
+from string import Template
+import time, os.path
+photofiles = ['img_1074.jpg', 'img_1076.jpg', 'img_1077.jpg']
+class BatchRename(Template):
+    delimiter = '%'
 
-    def f(self):
-        return 'hello world'
-    
-MyClass.i = 1000  # Modify the class variable
-print(MyClass.i)  # Output: 1000
-print(MyClass.f(MyClass))  # Output : hello world
-print(MyClass.__doc__)  # Output: A simple example class
-class Complex:
-    def __init__(self, realpart, imagpart):
-        self.r = realpart
-        self.i = imagpart
+fmt = input('Enter rename style (%d-date %n-seqnum %f-format):  ')
 
-x = Complex(3.0, -4.5)
-x.r, x.i  # Output: (3.0, -4.5)
+
+t = BatchRename(fmt)
+date = time.strftime('%d%b%y')
+for i, filename in enumerate(photofiles):
+    base, ext = os.path.splitext(filename)
+    newname = t.substitute(d=date, n=i, f=ext)
+    print('{0} --> {1}'.format(filename, newname))
