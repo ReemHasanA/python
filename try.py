@@ -1,22 +1,22 @@
-# Fibonacci numbers module
+def scope_test():
+    def do_local():
+        spam = "local spam"
 
-def fib(n):    # write Fibonacci series up to n
-    a, b = 0, 1
-    while a < n:
-        print(a, end=' ')
-        a, b = b, a+b
-    print()
+    def do_nonlocal():
+        nonlocal spam
+        spam = "nonlocal spam"
 
-def fib2(n):   # return Fibonacci series up to n
-    result = []
-    a, b = 0, 1
-    while a < n:
-        result.append(a)
-        a, b = b, a+b
-    return result
+    def do_global():
+        global spam
+        spam = "global spam"
 
-if __name__ == '__main__':
-    import sys
-    fib(int(sys.argv[1]))
-    print(fib2(int(sys.argv[1])))
-    print('This is the main module')
+    spam = "test spam"
+    do_local()
+    print("After local assignment:", spam)
+    do_nonlocal()
+    print("After nonlocal assignment:", spam)
+    do_global()
+    print("After global assignment:", spam)
+
+scope_test()
+print("In global scope:", spam)
