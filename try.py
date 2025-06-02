@@ -1,15 +1,18 @@
-from string import Template
-import time, os.path
-photofiles = ['img_1074.jpg', 'img_1076.jpg', 'img_1077.jpg']
-class BatchRename(Template):
-    delimiter = '%'
+import struct
 
-fmt = input('Enter rename style (%d-date %n-seqnum %f-format):  ')
+with open('../chocolate_4k_textures.zip', 'rb') as f:
+    data = f.read()
 
+start = 0
+for i in range(3):                      # show the first 3 file headers
+    start += 14
+    fields = struct.unpack('<IIIHH', data[start:start+16])
+    crc32, comp_size, uncomp_size, filenamesize, extra_size = fields
 
-t = BatchRename(fmt)
-date = time.strftime('%d%b%y')
-for i, filename in enumerate(photofiles):
-    base, ext = os.path.splitext(filename)
-    newname = t.substitute(d=date, n=i, f=ext)
-    print('{0} --> {1}'.format(filename, newname))
+    start += 16
+    filename = data[start:start+filenamesize]
+    start += filenamesize
+    extra = data[start:start+extra_size]
+    print(filename, hex(crc32), comp_size, uncomp_size)
+
+    start += extra_size + comp_size     # skip to the next header
