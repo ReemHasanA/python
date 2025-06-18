@@ -1,18 +1,20 @@
-import struct
+import threading, zipfile
 
-with open('../chocolate_4k_textures.zip', 'rb') as f:
-    data = f.read()
+class AsyncZip(threading.Thread):
+    def __init__(self, infile, outfile):
+        threading.Thread.__init__(self)
+        self.infile = infile
+        self.outfile = outfile
 
-start = 0
-for i in range(3):                      # show the first 3 file headers
-    start += 14
-    fields = struct.unpack('<IIIHH', data[start:start+16])
-    crc32, comp_size, uncomp_size, filenamesize, extra_size = fields
+    def run(self):
+        f = zipfile.ZipFile(self.outfile, 'w', zipfile.ZIP_DEFLATED)
+        f.write(self.infile)
+        f.close()
+        print('Finished background zip of:', self.infile)
 
-    start += 16
-    filename = data[start:start+filenamesize]
-    start += filenamesize
-    extra = data[start:start+extra_size]
-    print(filename, hex(crc32), comp_size, uncomp_size)
+background = AsyncZip('../myfile.txt', 'myarchive.zip')
+background.start()
+print('The main program continues to run in foreground.')
 
-    start += extra_size + comp_size     # skip to the next header
+background.join()    # Wait for the background task to finish
+print('Main program waited until background was done.')
